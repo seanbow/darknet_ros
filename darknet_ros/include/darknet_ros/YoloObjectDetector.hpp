@@ -89,6 +89,8 @@ class YoloObjectDetector
    */
   ~YoloObjectDetector();
 
+  void stop();
+
  private:
   /*!
    * Reads and verifies the ROS parameters.
@@ -150,6 +152,9 @@ class YoloObjectDetector
   image_transport::Subscriber imageSubscriber_;
   ros::Publisher objectPublisher_;
   ros::Publisher boundingBoxesPublisher_;
+
+  // So we don't spin and publish old detections like we used to...
+  boost::condition_variable_any cv_image_ready_;
 
   //! Detected objects.
   std::vector<std::vector<RosBox_> > rosBoxes_;
@@ -213,6 +218,11 @@ class YoloObjectDetector
 
   int actionId_;
   boost::shared_mutex mutexActionStatus_;
+
+  ros::Time last_image_time_;
+  ros::Time this_image_time_;
+  double desired_detection_framerate_;
+  ros::Duration desired_image_delay_;
 
   // double getWallTime();
 

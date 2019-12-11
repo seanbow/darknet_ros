@@ -6,34 +6,35 @@
  *	 Institute: ETH Zurich, Robotic Systems Lab
  */
 
-
 // Google Test
 #include <gtest/gtest.h>
 
 // ROS
-#include <ros/ros.h>
-#include <ros/package.h>
-#include <sensor_msgs/Image.h>
 #include <actionlib/client/simple_action_client.h>
+#include <ros/package.h>
+#include <ros/ros.h>
+#include <sensor_msgs/Image.h>
 
 // boost
 #include <boost/thread.hpp>
 
 // OpenCV2.
+#include <cv_bridge/cv_bridge.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <cv_bridge/cv_bridge.h>
 
 // Actions.
 #include <darknet_ros_msgs/CheckForObjectsAction.h>
 
-typedef actionlib::SimpleActionClient<darknet_ros_msgs::CheckForObjectsAction> CheckForObjectsActionClient;
-typedef std::shared_ptr<CheckForObjectsActionClient> CheckForObjectsActionClientPtr;
+typedef actionlib::SimpleActionClient<darknet_ros_msgs::CheckForObjectsAction>
+    CheckForObjectsActionClient;
+typedef std::shared_ptr<CheckForObjectsActionClient>
+    CheckForObjectsActionClientPtr;
 
 // c++
-#include <string>
 #include <cmath>
+#include <string>
 
 #ifdef DARKNET_FILE_PATH
 std::string darknetFilePath_ = DARKNET_FILE_PATH;
@@ -49,29 +50,30 @@ darknet_ros_msgs::BoundingBoxes boundingBoxesResults_;
  * @param[in] result
  */
 void checkForObjectsResultCB(
-    const actionlib::SimpleClientGoalState& state,
-    const darknet_ros_msgs::CheckForObjectsResultConstPtr& result) {
-  std::cout <<  "[ObjectDetectionTest] Received bounding boxes." << std::endl;
+    const actionlib::SimpleClientGoalState &state,
+    const darknet_ros_msgs::CheckForObjectsResultConstPtr &result) {
+  std::cout << "[ObjectDetectionTest] Received bounding boxes." << std::endl;
 
   boundingBoxesResults_ = result->bounding_boxes;
 }
 
-bool sendImageToYolo(ros::NodeHandle nh, const std::string& pathToTestImage) {
-  //!Check for objects action client.
+bool sendImageToYolo(ros::NodeHandle nh, const std::string &pathToTestImage) {
+  //! Check for objects action client.
   CheckForObjectsActionClientPtr checkForObjectsActionClient;
 
   // Action clients.
   std::string checkForObjectsActionName;
-  nh.param("/darknet_ros/camera_action", checkForObjectsActionName, std::string("/darknet_ros/check_for_objects"));
+  nh.param("/darknet_ros/camera_action", checkForObjectsActionName,
+           std::string("/darknet_ros/check_for_objects"));
   checkForObjectsActionClient.reset(
-      new CheckForObjectsActionClient(
-          nh, checkForObjectsActionName,
-          true));
+      new CheckForObjectsActionClient(nh, checkForObjectsActionName, true));
 
   // Wait till action server launches.
-  if(!checkForObjectsActionClient->waitForServer(ros::Duration(20.0))) {
-	  std::cout << "[ObjectDetectionTest] sendImageToYolo(): checkForObjects action server has not been advertised." << std::endl;
-	  return false;
+  if (!checkForObjectsActionClient->waitForServer(ros::Duration(20.0))) {
+    std::cout << "[ObjectDetectionTest] sendImageToYolo(): checkForObjects "
+                 "action server has not been advertised."
+              << std::endl;
+    return false;
   }
 
   // Get test image
@@ -87,23 +89,24 @@ bool sendImageToYolo(ros::NodeHandle nh, const std::string& pathToTestImage) {
   // Send goal.
   ros::Time beginYolo = ros::Time::now();
   checkForObjectsActionClient->sendGoal(
-      goal,
-      boost::bind(&checkForObjectsResultCB, _1, _2),
+      goal, boost::bind(&checkForObjectsResultCB, _1, _2),
       CheckForObjectsActionClient::SimpleActiveCallback(),
       CheckForObjectsActionClient::SimpleFeedbackCallback());
 
-  if(!checkForObjectsActionClient->waitForResult(ros::Duration(100.0))) {
-    std::cout << "[ObjectDetectionTest] sendImageToYolo(): checkForObjects action server took to long to send back result." << std::endl;
+  if (!checkForObjectsActionClient->waitForResult(ros::Duration(100.0))) {
+    std::cout << "[ObjectDetectionTest] sendImageToYolo(): checkForObjects "
+                 "action server took to long to send back result."
+              << std::endl;
     return false;
   }
   ros::Time endYolo = ros::Time::now();
-  std::cout << "[ObjectDetectionTest] Object detection for one image took " << endYolo-beginYolo << " seconds." << std::endl;
+  std::cout << "[ObjectDetectionTest] Object detection for one image took "
+            << endYolo - beginYolo << " seconds." << std::endl;
   return true;
 }
 
-TEST(ObjectDetection, DISABLED_DetectDog)
-{
-  srand((unsigned int) time(0));
+TEST(ObjectDetection, DISABLED_DetectDog) {
+  srand((unsigned int)time(0));
   ros::NodeHandle nodeHandle("~");
 
   // Path to test image.
@@ -116,7 +119,8 @@ TEST(ObjectDetection, DISABLED_DetectDog)
   ASSERT_TRUE(sendImageToYolo(nodeHandle, pathToTestImage));
   ASSERT_TRUE(sendImageToYolo(nodeHandle, pathToTestImage));
 
-  // Evaluate if yolo was able to detect the three objects: dog, bicycle and car.
+  // Evaluate if yolo was able to detect the three objects: dog, bicycle and
+  // car.
   bool detectedDog = false;
   double centerErrorDog;
   bool detectedBicycle = false;
@@ -124,26 +128,37 @@ TEST(ObjectDetection, DISABLED_DetectDog)
   bool detectedCar = false;
   double centerErrorCar;
 
-  for(unsigned int i = 0; i < boundingBoxesResults_.bounding_boxes.size(); ++i) {
+  for (unsigned int i = 0; i < boundingBoxesResults_.bounding_boxes.size();
+       ++i) {
     double xPosCenter = boundingBoxesResults_.bounding_boxes.at(i).xmin +
-        (boundingBoxesResults_.bounding_boxes.at(i).xmax - boundingBoxesResults_.bounding_boxes.at(i).xmin)*0.5;
+                        (boundingBoxesResults_.bounding_boxes.at(i).xmax -
+                         boundingBoxesResults_.bounding_boxes.at(i).xmin) *
+                            0.5;
     double yPosCenter = boundingBoxesResults_.bounding_boxes.at(i).ymin +
-        (boundingBoxesResults_.bounding_boxes.at(i).ymax - boundingBoxesResults_.bounding_boxes.at(i).ymin)*0.5;
+                        (boundingBoxesResults_.bounding_boxes.at(i).ymax -
+                         boundingBoxesResults_.bounding_boxes.at(i).ymin) *
+                            0.5;
 
-    if(boundingBoxesResults_.bounding_boxes.at(i).Class == "dog") {
+    if (boundingBoxesResults_.bounding_boxes.at(i).Class == "dog") {
       detectedDog = true;
-      //std::cout << "centerErrorDog  " << xPosCenter << ", " <<  yPosCenter << std::endl;
-      centerErrorDog = std::sqrt(std::pow(xPosCenter - 222.5, 2) + std::pow(yPosCenter - 361.5, 2));
+      // std::cout << "centerErrorDog  " << xPosCenter << ", " <<  yPosCenter <<
+      // std::endl;
+      centerErrorDog = std::sqrt(std::pow(xPosCenter - 222.5, 2) +
+                                 std::pow(yPosCenter - 361.5, 2));
     }
-    if(boundingBoxesResults_.bounding_boxes.at(i).Class == "bicycle") {
+    if (boundingBoxesResults_.bounding_boxes.at(i).Class == "bicycle") {
       detectedBicycle = true;
-      //std::cout << "centerErrorBicycle "  << xPosCenter << ", " <<  yPosCenter << std::endl;
-      centerErrorBicycle = std::sqrt(std::pow(xPosCenter - 338.0, 2) + std::pow(yPosCenter - 289.0, 2));
+      // std::cout << "centerErrorBicycle "  << xPosCenter << ", " << yPosCenter
+      // << std::endl;
+      centerErrorBicycle = std::sqrt(std::pow(xPosCenter - 338.0, 2) +
+                                     std::pow(yPosCenter - 289.0, 2));
     }
-    if(boundingBoxesResults_.bounding_boxes.at(i).Class == "truck") {
+    if (boundingBoxesResults_.bounding_boxes.at(i).Class == "truck") {
       detectedCar = true;
-      //std::cout << "centerErrorCar  " << xPosCenter << ", " <<  yPosCenter << std::endl;
-      centerErrorCar = std::sqrt(std::pow(xPosCenter - 561.0, 2) + std::pow(yPosCenter - 126.5, 2));
+      // std::cout << "centerErrorCar  " << xPosCenter << ", " <<  yPosCenter <<
+      // std::endl;
+      centerErrorCar = std::sqrt(std::pow(xPosCenter - 561.0, 2) +
+                                 std::pow(yPosCenter - 126.5, 2));
     }
   }
 
@@ -155,9 +170,8 @@ TEST(ObjectDetection, DISABLED_DetectDog)
   EXPECT_LT(centerErrorCar, 40.0);
 }
 
-TEST(ObjectDetection, DetectANYmal)
-{
-  srand((unsigned int) time(0));
+TEST(ObjectDetection, DetectANYmal) {
+  srand((unsigned int)time(0));
   ros::NodeHandle nodeHandle("~");
 
   // Path to test image.
@@ -170,18 +184,24 @@ TEST(ObjectDetection, DetectANYmal)
   ASSERT_TRUE(sendImageToYolo(nodeHandle, pathToTestImage));
   ASSERT_TRUE(sendImageToYolo(nodeHandle, pathToTestImage));
 
-  // Evaluate if yolo was able to detect the three objects: dog, bicycle and car.
+  // Evaluate if yolo was able to detect the three objects: dog, bicycle and
+  // car.
   bool detectedPerson = false;
   double centerErrorPersonX;
   double centerErrorPersonY;
 
-  for(unsigned int i = 0; i < boundingBoxesResults_.bounding_boxes.size(); ++i) {
+  for (unsigned int i = 0; i < boundingBoxesResults_.bounding_boxes.size();
+       ++i) {
     double xPosCenter = boundingBoxesResults_.bounding_boxes.at(i).xmin +
-        (boundingBoxesResults_.bounding_boxes.at(i).xmax - boundingBoxesResults_.bounding_boxes.at(i).xmin)*0.5;
+                        (boundingBoxesResults_.bounding_boxes.at(i).xmax -
+                         boundingBoxesResults_.bounding_boxes.at(i).xmin) *
+                            0.5;
     double yPosCenter = boundingBoxesResults_.bounding_boxes.at(i).ymin +
-        (boundingBoxesResults_.bounding_boxes.at(i).ymax - boundingBoxesResults_.bounding_boxes.at(i).ymin)*0.5;
+                        (boundingBoxesResults_.bounding_boxes.at(i).ymax -
+                         boundingBoxesResults_.bounding_boxes.at(i).ymin) *
+                            0.5;
 
-    if(boundingBoxesResults_.bounding_boxes.at(i).Class == "person") {
+    if (boundingBoxesResults_.bounding_boxes.at(i).Class == "person") {
       detectedPerson = true;
       centerErrorPersonX = std::sqrt(std::pow(xPosCenter - 1650.0, 2));
       centerErrorPersonY = std::sqrt(std::pow(xPosCenter - 1675.0, 2));
@@ -194,7 +214,7 @@ TEST(ObjectDetection, DetectANYmal)
 }
 
 TEST(ObjectDetection, DISABLED_DetectPerson) {
-  srand((unsigned int) time(0));
+  srand((unsigned int)time(0));
   ros::NodeHandle nodeHandle("~");
 
   // Path to test image.
@@ -210,16 +230,23 @@ TEST(ObjectDetection, DISABLED_DetectPerson) {
   bool detectedPerson = false;
   double centerErrorPerson;
 
-  for(unsigned int i = 0; i < boundingBoxesResults_.bounding_boxes.size(); ++i) {
+  for (unsigned int i = 0; i < boundingBoxesResults_.bounding_boxes.size();
+       ++i) {
     double xPosCenter = boundingBoxesResults_.bounding_boxes.at(i).xmin +
-        (boundingBoxesResults_.bounding_boxes.at(i).xmax - boundingBoxesResults_.bounding_boxes.at(i).xmin)*0.5;
+                        (boundingBoxesResults_.bounding_boxes.at(i).xmax -
+                         boundingBoxesResults_.bounding_boxes.at(i).xmin) *
+                            0.5;
     double yPosCenter = boundingBoxesResults_.bounding_boxes.at(i).ymin +
-        (boundingBoxesResults_.bounding_boxes.at(i).ymax - boundingBoxesResults_.bounding_boxes.at(i).ymin)*0.5;
+                        (boundingBoxesResults_.bounding_boxes.at(i).ymax -
+                         boundingBoxesResults_.bounding_boxes.at(i).ymin) *
+                            0.5;
 
-    if(boundingBoxesResults_.bounding_boxes.at(i).Class == "person") {
+    if (boundingBoxesResults_.bounding_boxes.at(i).Class == "person") {
       detectedPerson = true;
-      //std::cout << "centerErrorPerson  " << xPosCenter << ", " <<  yPosCenter << std::endl;
-      centerErrorPerson = std::sqrt(std::pow(xPosCenter - 228.0, 2) + std::pow(yPosCenter - 238.0, 2));
+      // std::cout << "centerErrorPerson  " << xPosCenter << ", " <<  yPosCenter
+      // << std::endl;
+      centerErrorPerson = std::sqrt(std::pow(xPosCenter - 228.0, 2) +
+                                    std::pow(yPosCenter - 238.0, 2));
     }
   }
 
