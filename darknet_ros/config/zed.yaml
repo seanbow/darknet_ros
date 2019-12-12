@@ -10,7 +10,7 @@ actions:
     name: /darknet_ros/check_for_objects
 
   detecting:
-    hz: 3
+    hz: 2
 
 publishers:
 
