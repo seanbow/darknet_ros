@@ -96,6 +96,7 @@ set(PROJECT_LIB_FILES
 set(DARKNET_CORE_FILES
     ${DARKNET_PATH}/src/activation_layer.c        ${DARKNET_PATH}/src/im2col.c
     ${DARKNET_PATH}/src/activations.c             ${DARKNET_PATH}/src/image.c
+    ${DARKNET_PATH}/src/iseg_layer.c              ${DARKNET_PATH}/examples/instance-segmenter.c
     ${DARKNET_PATH}/src/avgpool_layer.c           ${DARKNET_PATH}/src/layer.c
     ${DARKNET_PATH}/src/batchnorm_layer.c         ${DARKNET_PATH}/src/list.c
     ${DARKNET_PATH}/src/blas.c                    ${DARKNET_PATH}/src/local_layer.c
@@ -116,6 +117,7 @@ set(DARKNET_CORE_FILES
     ${DARKNET_PATH}/src/gru_layer.c               ${DARKNET_PATH}/src/utils.c
     ${DARKNET_PATH}/src/upsample_layer.c          ${DARKNET_PATH}/src/logistic_layer.c
     ${DARKNET_PATH}/src/l2norm_layer.c            ${DARKNET_PATH}/src/yolo_layer.c
+    ${DARKNET_PATH}/src/image_opencv.cpp
 
     ${DARKNET_PATH}/examples/art.c                ${DARKNET_PATH}/examples/lsd.c
     ${DARKNET_PATH}/examples/attention.c          ${DARKNET_PATH}/examples/nightmare.c

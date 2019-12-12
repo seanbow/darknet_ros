@@ -472,7 +472,8 @@ void *YoloObjectDetector::fetchInThread()
     boost::shared_lock<boost::shared_mutex> lock(mutexImageCallback_);
     IplImageWithHeader_ imageAndHeader = getIplImageWithHeader();
     IplImage *ROS_img = imageAndHeader.image;
-    ipl_into_image(ROS_img, buff_[buffIndex_]);
+    // ipl_into_image(ROS_img, buff_[buffIndex_]);
+    buff_[buffIndex_] = ipl_to_image(ROS_img);
     headerBuff_[buffIndex_] = imageAndHeader.header;
     buffId_[buffIndex_] = actionId_;
   }
@@ -484,10 +485,7 @@ void *YoloObjectDetector::fetchInThread()
 
 void *YoloObjectDetector::displayInThread(void *ptr)
 {
-  show_image_cv(buff_[(buffIndex_ + 1) % 3], "YOLO V3", ipl_);
-  int c = cv::waitKey(waitKeyDelay_);
-  if (c != -1)
-    c = c % 256;
+  int c = show_image_cv(buff_[(buffIndex_ + 1) % 3], "YOLO V3", waitKeyDelay_);
   if (c == 27)
   {
     demoDone_ = 1;

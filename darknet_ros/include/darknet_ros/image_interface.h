@@ -9,6 +9,7 @@
 #ifndef IMAGE_INTERFACE_H
 #define IMAGE_INTERFACE_H
 
+#include <opencv2/core/types_c.h>
 #include "image.h"
 
 static float get_pixel(image m, int x, int y, int c);
