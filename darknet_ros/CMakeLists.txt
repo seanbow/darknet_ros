@@ -120,7 +120,7 @@ set(DARKNET_CORE_FILES
     ${DARKNET_PATH}/src/image_opencv.cpp
 
     ${DARKNET_PATH}/examples/art.c                ${DARKNET_PATH}/examples/lsd.c
-    ${DARKNET_PATH}/examples/attention.c          ${DARKNET_PATH}/examples/nightmare.c
+    ${DARKNET_PATH}/examples/nightmare.c
     ${DARKNET_PATH}/examples/captcha.c            ${DARKNET_PATH}/examples/regressor.c
     ${DARKNET_PATH}/examples/cifar.c              ${DARKNET_PATH}/examples/rnn.c
     ${DARKNET_PATH}/examples/classifier.c         ${DARKNET_PATH}/examples/segmenter.c
