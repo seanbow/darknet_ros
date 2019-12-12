@@ -11,6 +11,7 @@
   <include file="$(find darknet_ros)/launch/darknet_ros.launch">
     <arg name="network_param_file"    value="$(arg network_param_file)"/>
     <arg name="ros_param_file"        value="$(find darknet_ros)/config/zed.yaml"/>
+    <arg name="image"                 value="/zed/zed_node/rgb/image_rect_color" />
   </include>
 
 </launch>
