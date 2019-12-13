@@ -145,9 +145,9 @@ void YoloObjectDetector::init()
   int detectionImageQueueSize;
   bool detectionImageLatch;
 
-  nodeHandle_.param("subscribers/camera_reading/topic", cameraTopicName,
-                    std::string("/camera/image_raw"));
-  nodeHandle_.param("subscribers/camera_reading/queue_size", cameraQueueSize,
+  nodeHandle_.param("image_topic", cameraTopicName,
+                    std::string("/camera/rgb/image_raw"));
+  nodeHandle_.param("image_queue_size", cameraQueueSize,
                     1);
   nodeHandle_.param("publishers/object_detector/topic", objectDetectorTopicName,
                     std::string("found_object"));
@@ -199,7 +199,7 @@ void YoloObjectDetector::init()
 
 void YoloObjectDetector::cameraCallback(const sensor_msgs::ImageConstPtr &msg)
 {
-  ROS_DEBUG("[YoloObjectDetector] USB image received.");
+  ROS_INFO("[YoloObjectDetector] USB image received.");
 
   this_image_time_ = msg->header.stamp;
 

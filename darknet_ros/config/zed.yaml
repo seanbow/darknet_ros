@@ -1,8 +1,8 @@
-subscribers:
+# subscribers:
 
-  camera_reading:
-    topic: /zed/zed_node/rgb/image_rect_color
-    queue_size: 1
+#   camera_reading:
+#     topic: /camera/rgb/image_raw
+#     queue_size: 1
 
 actions:
 
@@ -10,7 +10,7 @@ actions:
     name: /darknet_ros/check_for_objects
 
   detecting:
-    hz: 10
+    hz: 2
 
 publishers:
 
