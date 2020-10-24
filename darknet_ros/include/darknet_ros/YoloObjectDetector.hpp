@@ -45,6 +45,8 @@
 #include "cublas_v2.h"
 #endif
 
+#include "darknet_ros/image_interface.h"
+
 extern "C"
 {
 #include "network.h"
@@ -54,12 +56,11 @@ extern "C"
 #include "utils.h"
 #include "parser.h"
 #include "box.h"
-#include "darknet_ros/image_interface.h"
 #include <sys/time.h>
 }
 
-extern "C" void ipl_into_image(IplImage *src, image im);
-extern "C" image ipl_to_image(IplImage *src);
+// extern "C" void ipl_into_image(IplImage *src, image im);
+extern "C" image mat_to_image(cv::Mat src);
 extern "C" int show_image_cv(image p, const char *name, int ms);
 
 namespace darknet_ros
@@ -72,11 +73,11 @@ typedef struct
   int num, Class;
 } RosBox_;
 
-typedef struct
-{
-  IplImage *image;
-  std_msgs::Header header;
-} IplImageWithHeader_;
+// typedef struct
+// {
+//   IplImage *image;
+//   std_msgs::Header header;
+// } IplImageWithHeader_;
 
 class YoloObjectDetector
 {
@@ -184,7 +185,8 @@ private:
   image buffLetter_[3];
   int buffId_[3];
   int buffIndex_ = 0;
-  IplImage *ipl_;
+  // IplImage *ipl_;
+  cv::Mat output_image_;
   float fps_ = 0;
   float demoThresh_ = 0;
   float demoHier_ = .5;
@@ -250,8 +252,6 @@ private:
                     int frames, int fullscreen);
 
   void yolo();
-
-  IplImageWithHeader_ getIplImageWithHeader();
 
   bool getImageStatus(void);
 

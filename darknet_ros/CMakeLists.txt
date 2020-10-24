@@ -22,12 +22,13 @@ if (CUDA_FOUND)
     CUDA_NVCC_FLAGS
     ${CUDA_NVCC_FLAGS};
     -O3
-    -gencode arch=compute_35,code=sm_35
-    -gencode arch=compute_50,code=[sm_50,compute_50]
+    # -gencode arch=compute_35,code=sm_35
+    # -gencode arch=compute_50,code=[sm_50,compute_50]
     -gencode arch=compute_52,code=[sm_52,compute_52]
     -gencode arch=compute_61,code=sm_61
     -gencode arch=compute_62,code=sm_62
     -gencode arch=compute_75,code=sm_75
+    -gencode arch=compute_75,code=compute_75
   )
   add_definitions(-DGPU)
 else()
@@ -88,8 +89,9 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-set(PROJECT_LIB_FILES
-    src/YoloObjectDetector.cpp                    src/image_interface.c
+set(PROJECT_LIB_FILES              
+    src/image_interface.cpp
+    src/YoloObjectDetector.cpp      
 )
 
 set(DARKNET_CORE_FILES
@@ -144,7 +146,8 @@ if (CUDA_FOUND)
   )
 
   cuda_add_library(${PROJECT_NAME}_lib
-    ${PROJECT_LIB_FILES} ${DARKNET_CORE_FILES}
+    ${PROJECT_LIB_FILES} 
+    ${DARKNET_CORE_FILES}
     ${DARKNET_CUDA_FILES}
   )
 
