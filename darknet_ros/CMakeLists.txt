@@ -84,6 +84,7 @@ catkin_package(
 include_directories(
   ${DARKNET_PATH}/src
   ${DARKNET_PATH}/include
+  ${DARKNET_PATH}/3rdparty/stb/include
   include
   ${Boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
@@ -94,50 +95,56 @@ set(PROJECT_LIB_FILES
     src/YoloObjectDetector.cpp      
 )
 
-set(DARKNET_CORE_FILES
-    ${DARKNET_PATH}/src/activation_layer.c        ${DARKNET_PATH}/src/im2col.c
-    ${DARKNET_PATH}/src/activations.c             ${DARKNET_PATH}/src/image.c
-    ${DARKNET_PATH}/src/iseg_layer.c              ${DARKNET_PATH}/examples/instance-segmenter.c
-    ${DARKNET_PATH}/src/avgpool_layer.c           ${DARKNET_PATH}/src/layer.c
-    ${DARKNET_PATH}/src/batchnorm_layer.c         ${DARKNET_PATH}/src/list.c
-    ${DARKNET_PATH}/src/blas.c                    ${DARKNET_PATH}/src/local_layer.c
-    ${DARKNET_PATH}/src/box.c                     ${DARKNET_PATH}/src/lstm_layer.c
-    ${DARKNET_PATH}/src/col2im.c                  ${DARKNET_PATH}/src/matrix.c
-    ${DARKNET_PATH}/src/connected_layer.c         ${DARKNET_PATH}/src/maxpool_layer.c
-    ${DARKNET_PATH}/src/convolutional_layer.c     ${DARKNET_PATH}/src/network.c
-    ${DARKNET_PATH}/src/cost_layer.c              ${DARKNET_PATH}/src/normalization_layer.c
-    ${DARKNET_PATH}/src/crnn_layer.c              ${DARKNET_PATH}/src/option_list.c
-    ${DARKNET_PATH}/src/crop_layer.c              ${DARKNET_PATH}/src/parser.c
-    ${DARKNET_PATH}/src/cuda.c                    ${DARKNET_PATH}/src/region_layer.c
-    ${DARKNET_PATH}/src/data.c                    ${DARKNET_PATH}/src/reorg_layer.c
-    ${DARKNET_PATH}/src/deconvolutional_layer.c   ${DARKNET_PATH}/src/rnn_layer.c
-    ${DARKNET_PATH}/src/demo.c                    ${DARKNET_PATH}/src/route_layer.c
-    ${DARKNET_PATH}/src/detection_layer.c         ${DARKNET_PATH}/src/shortcut_layer.c
-    ${DARKNET_PATH}/src/dropout_layer.c           ${DARKNET_PATH}/src/softmax_layer.c
-    ${DARKNET_PATH}/src/gemm.c                    ${DARKNET_PATH}/src/tree.c
-    ${DARKNET_PATH}/src/gru_layer.c               ${DARKNET_PATH}/src/utils.c
-    ${DARKNET_PATH}/src/upsample_layer.c          ${DARKNET_PATH}/src/logistic_layer.c
-    ${DARKNET_PATH}/src/l2norm_layer.c            ${DARKNET_PATH}/src/yolo_layer.c
-    ${DARKNET_PATH}/src/image_opencv.cpp
+file(GLOB DARKNET_CORE_FILES ${DARKNET_PATH}/src/*.c ${DARKNET_PATH}/src/*.cpp)
+file(GLOB DARKNET_CUDA_FILES ${DARKNET_PATH}/src/*.cu)
 
-    ${DARKNET_PATH}/examples/art.c                ${DARKNET_PATH}/examples/lsd.c
-    ${DARKNET_PATH}/examples/nightmare.c
-    ${DARKNET_PATH}/examples/captcha.c            ${DARKNET_PATH}/examples/regressor.c
-    ${DARKNET_PATH}/examples/cifar.c              ${DARKNET_PATH}/examples/rnn.c
-    ${DARKNET_PATH}/examples/classifier.c         ${DARKNET_PATH}/examples/segmenter.c
-    ${DARKNET_PATH}/examples/coco.c               ${DARKNET_PATH}/examples/super.c
-    ${DARKNET_PATH}/examples/darknet.c            ${DARKNET_PATH}/examples/tag.c
-    ${DARKNET_PATH}/examples/detector.c           ${DARKNET_PATH}/examples/yolo.c
-    ${DARKNET_PATH}/examples/go.c
-)
+list(REMOVE_ITEM DARKNET_CORE_FILES ${DARKNET_PATH}/src/yolo_console_dll.cpp)
 
-set(DARKNET_CUDA_FILES
-    ${DARKNET_PATH}/src/activation_kernels.cu     ${DARKNET_PATH}/src/crop_layer_kernels.cu
-    ${DARKNET_PATH}/src/avgpool_layer_kernels.cu  ${DARKNET_PATH}/src/deconvolutional_kernels.cu
-    ${DARKNET_PATH}/src/blas_kernels.cu           ${DARKNET_PATH}/src/dropout_layer_kernels.cu
-    ${DARKNET_PATH}/src/col2im_kernels.cu         ${DARKNET_PATH}/src/im2col_kernels.cu
-    ${DARKNET_PATH}/src/convolutional_kernels.cu  ${DARKNET_PATH}/src/maxpool_layer_kernels.cu
-)
+# set(DARKNET_CORE_FILES
+#     ${DARKNET_PATH}/src/activation_layer.c        ${DARKNET_PATH}/src/im2col.c
+#     ${DARKNET_PATH}/src/activations.c             ${DARKNET_PATH}/src/image.c
+#     # ${DARKNET_PATH}/src/iseg_layer.c              
+#     # ${DARKNET_PATH}/examples/instance-segmenter.c
+#     ${DARKNET_PATH}/src/avgpool_layer.c           ${DARKNET_PATH}/src/layer.c
+#     ${DARKNET_PATH}/src/batchnorm_layer.c         ${DARKNET_PATH}/src/list.c
+#     ${DARKNET_PATH}/src/blas.c                    ${DARKNET_PATH}/src/local_layer.c
+#     ${DARKNET_PATH}/src/box.c                     ${DARKNET_PATH}/src/lstm_layer.c
+#     ${DARKNET_PATH}/src/col2im.c                  ${DARKNET_PATH}/src/matrix.c
+#     ${DARKNET_PATH}/src/connected_layer.c         ${DARKNET_PATH}/src/maxpool_layer.c
+#     ${DARKNET_PATH}/src/convolutional_layer.c     ${DARKNET_PATH}/src/network.c
+#     ${DARKNET_PATH}/src/cost_layer.c              ${DARKNET_PATH}/src/normalization_layer.c
+#     ${DARKNET_PATH}/src/crnn_layer.c              ${DARKNET_PATH}/src/option_list.c
+#     ${DARKNET_PATH}/src/crop_layer.c              ${DARKNET_PATH}/src/parser.c
+#     ${DARKNET_PATH}/src/cuda.c                    ${DARKNET_PATH}/src/region_layer.c
+#     ${DARKNET_PATH}/src/data.c                    ${DARKNET_PATH}/src/reorg_layer.c
+#     ${DARKNET_PATH}/src/deconvolutional_layer.c   ${DARKNET_PATH}/src/rnn_layer.c
+#     ${DARKNET_PATH}/src/demo.c                    ${DARKNET_PATH}/src/route_layer.c
+#     ${DARKNET_PATH}/src/detection_layer.c         ${DARKNET_PATH}/src/shortcut_layer.c
+#     ${DARKNET_PATH}/src/dropout_layer.c           ${DARKNET_PATH}/src/softmax_layer.c
+#     ${DARKNET_PATH}/src/gemm.c                    ${DARKNET_PATH}/src/tree.c
+#     ${DARKNET_PATH}/src/gru_layer.c               ${DARKNET_PATH}/src/utils.c
+#     ${DARKNET_PATH}/src/upsample_layer.c          ${DARKNET_PATH}/src/logistic_layer.c
+#     ${DARKNET_PATH}/src/l2norm_layer.c            ${DARKNET_PATH}/src/yolo_layer.c
+#     ${DARKNET_PATH}/src/image_opencv.cpp
+
+#     # ${DARKNET_PATH}/examples/art.c                ${DARKNET_PATH}/examples/lsd.c
+#     # ${DARKNET_PATH}/examples/nightmare.c
+#     # ${DARKNET_PATH}/examples/captcha.c            ${DARKNET_PATH}/examples/regressor.c
+#     # ${DARKNET_PATH}/examples/cifar.c              ${DARKNET_PATH}/examples/rnn.c
+#     # ${DARKNET_PATH}/examples/classifier.c         ${DARKNET_PATH}/examples/segmenter.c
+#     # ${DARKNET_PATH}/examples/coco.c               ${DARKNET_PATH}/examples/super.c
+#     # ${DARKNET_PATH}/examples/darknet.c            ${DARKNET_PATH}/examples/tag.c
+#     # ${DARKNET_PATH}/examples/detector.c           ${DARKNET_PATH}/examples/yolo.c
+#     # ${DARKNET_PATH}/examples/go.c
+# )
+
+# set(DARKNET_CUDA_FILES
+#     ${DARKNET_PATH}/src/activation_kernels.cu     ${DARKNET_PATH}/src/crop_layer_kernels.cu
+#     ${DARKNET_PATH}/src/avgpool_layer_kernels.cu  ${DARKNET_PATH}/src/deconvolutional_kernels.cu
+#     ${DARKNET_PATH}/src/blas_kernels.cu           ${DARKNET_PATH}/src/dropout_layer_kernels.cu
+#     ${DARKNET_PATH}/src/col2im_kernels.cu         ${DARKNET_PATH}/src/im2col_kernels.cu
+#     ${DARKNET_PATH}/src/convolutional_kernels.cu  ${DARKNET_PATH}/src/maxpool_layer_kernels.cu
+# )
 
 if (CUDA_FOUND)
 
@@ -206,6 +213,21 @@ install(
   DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
+)
+
+install(
+  DIRECTORY launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(
+  DIRECTORY config
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(
+  DIRECTORY yolo_network_config
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
 # # Download yolov2-tiny.weights

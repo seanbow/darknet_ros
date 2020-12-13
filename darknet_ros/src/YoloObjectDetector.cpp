@@ -371,8 +371,9 @@ detection *YoloObjectDetector::avgPredictions(network *net, int *nboxes)
       count += l.outputs;
     }
   }
+  int use_letterbox_resize = 1;
   detection *dets = get_network_boxes(net, buff_[0].w, buff_[0].h, demoThresh_,
-                                      demoHier_, 0, 1, nboxes);
+                                      demoHier_, 0, 1, nboxes, use_letterbox_resize);
   return dets;
 }
 
@@ -383,7 +384,7 @@ void *YoloObjectDetector::detectInThread()
 
   layer l = net_->layers[net_->n - 1];
   float *X = buffLetter_[(buffIndex_ + 2) % 3].data;
-  float *prediction = network_predict(net_, X);
+  float *prediction = network_predict(*net_, X);
 
   rememberNetwork(net_);
   detection *dets = 0;
@@ -401,8 +402,8 @@ void *YoloObjectDetector::detectInThread()
     printf("Objects:\n\n");
   }
   image display = buff_[(buffIndex_ + 2) % 3];
-  draw_detections(display, dets, nboxes, demoThresh_, demoNames_, demoAlphabet_,
-                  demoClasses_);
+  draw_detections_v3(display, dets, nboxes, demoThresh_, demoNames_, demoAlphabet_,
+                  demoClasses_, 1);
 
   // extract the bounding boxes and send them to ROS
   int i, j;
@@ -482,7 +483,8 @@ void *YoloObjectDetector::fetchInThread()
 
 void *YoloObjectDetector::displayInThread(void *ptr)
 {
-  int c = show_image_cv(buff_[(buffIndex_ + 1) % 3], "YOLO V3", waitKeyDelay_);
+  show_image_cv(buff_[(buffIndex_ + 1) % 3], "YOLO V3");
+  int c = wait_key_cv(waitKeyDelay_);
   if (c == 27)
   {
     demoDone_ = 1;

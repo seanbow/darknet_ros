@@ -56,12 +56,14 @@ extern "C"
 #include "utils.h"
 #include "parser.h"
 #include "box.h"
+#include "blas.h"
 #include <sys/time.h>
 }
 
 // extern "C" void ipl_into_image(IplImage *src, image im);
 extern "C" image mat_to_image(cv::Mat src);
-extern "C" int show_image_cv(image p, const char *name, int ms);
+extern "C" void show_image_cv(image p, const char *name);
+extern "C" int wait_key_cv(int delay);
 
 namespace darknet_ros
 {
